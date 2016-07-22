@@ -3,28 +3,78 @@
 http://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html
 */
 
-/* EN COURS DE REDACTION */
+/* Pour cette version nous allons notamment:
+- restreindre les droits d'émission de la monnaie à une seule personne
+- créer des événéments afin que des personnes extérieures puissent suivre
+les modificiations du contrat
+- ajouter un peu de flexibilité*/
 
 contract metaCoinv2 {
-    // The keyword "public" makes those variables
-    // readable from outside.
+    
     address public minter;
+    /* le droit d'émission de la monnaie revient au "minter", il est identifié
+    par son addresse et cette adresse est publique */
+    
     mapping (address => uint) public balances;
 
-    // Events allow light clients to react on
-    // changes efficiently.
+    /* Comme précédemment on définit un mapping avec les adresses et les soldes
+    */
+    
     event Sent(address from, address to, uint amount);
+    event Create(address from, address to, uint amount)
+    /*On définit les events "Sent" et "Create". L'Event est un type de fonction
+     prenant jusqu'à 3 paramêtres en entrée et qui permet un usage pratique du 
+     journal de la machine virtuelle d'ethereum. Lorsqu'un event est appelé il
+    entraîne le stockage des arguments qu'il contient dans le journal des 
+    transactions Les events permettent donc de suivre ce qui se passe dans le
+    contrat depuis l'extérieure 
+         */
 
-    // This is the constructor whose code is
-    // run only when the contract is created.
+    modifier minterOnly(address minter)
+{
+    if (msg.sender != minter)
+        throw;
+    _
+}
+    /* le "modifier" permet de poser des conditions à l'exécution de certaines
+    fonctions. Ici, "minterOnly" sera ajouté à la syntaxe des fonctions que l'on
+    veut réserver au "minter". Le modifier teste la condion msg.sender != minter
+    si le requêteur de la fonction n'est pas le minter alors l'exécution
+    s'interrompt, c'est le sens du "throw". S'il s'agit bien du minter alors
+    la fonction s'exécute. Notez le "_" underscore après le teste, il signifie
+    à la fonction de continuer son exécution.*/
+     
     function Coin() {
         minter = msg.sender;
     }
+    /* Cette fonction est un "constructor" elle ne reçoit rien en argument et
+    elle ne s'exécute qu'une seule fois à la création du contrat. En l'espèce
+    la variable "minter" reçoit l'adresse "msg.sender" c'est à dire l'adresse
+    de celui qui a déployé le contrat
+    En l'absence de fonction spécifique pour modifier cette variable elle est
+    donc immuable*/
 
-    function mint(address receiver, uint amount) {
-        if (msg.sender != minter) return;
+
+    function changeMinter (address _newMinter)
+       minterOnly(minter)
+   {
+       minter = _newMinter;
+   }
+   /* Cette fonction répond au problème du changement de Minter, l'ancien peut
+   déléguer sa fonction à l'adresse (donc à la personne) de son choix. Le
+   modifier minterOnly assure que lui seule puisse déléguer.*/
+
+  
+    function createCoin(address receiver, uint amount) minterOnly(minter) {
         balances[receiver] += amount;
+        Create(msg.sender, receiver, amount);
     }
+
+    /* par la fonction createCoin, le minter et seulement lui attribue un 
+    montant "amount" à une adresse dans la mapping "balances". Notez que ce 
+    montant ne pas peut être négatif. Cette opération est publiée dans le journal
+    (le log) des transaction par l'event "Create" qui indique à tout le monde 
+    que msg.sender (ie le minter) a attribué un montant a l'adresse receiver.*/   
 
     function send(address receiver, uint amount) {
         if (balances[msg.sender] < amount) return;
@@ -32,75 +82,19 @@ contract metaCoinv2 {
         balances[receiver] += amount;
         Sent(msg.sender, receiver, amount);
     }
-}
 
-contract metaCoin {	
-    /* 'contract' est similaire à 'class' dans d'autres langages (class variables,
-inheritance, etc.) */
-    // On déclare ici les variables d'état hors des fonctions
+    /* La fonction send peut être appelé par tout le monde. Le test initial est
+    strict pour gérer les adresses qui ne sont pas sur le mapping (0 en solde).
+    Cette opération est publiée dans le journal des transaction par l'event 
+    "Sent" qui indique à tout le monde que msg.sender (ie le minter) a attribué 
+    un montant a l'adresse receiver.*/
 
-	mapping (address => uint) balances;
-	
-    /* mapping est un dictionnaire associant les adresses "address"
-    à des soldes "uint". Par défaut les "mapping" sont publics, i.e quiconque
-    peut faire une requête de lecture. Le complément "public" es généralement 
-    ajouté pour lever l'ambuguïté "mapping (address => uint) public balances;"
-    On peut bien sûr préciser "private" à la place pour qu'il soit impossible 
-    de faire des requêtes sur le mapping sauf pour le contrat lui-même
-    Notez que ces données restent néanmoins "visibles" sur la blockchain
-    Avec private on aurait : mapping (address => uint) private balances; */
-	
-	function metaCoin() {
-		balances[msg.sender] = 10000;
-	}
-	
-	/* la fonction metaCoin est la fonction de création monétaire. Elle peut 
-	être appelée par n'importe qui, l'appel se fait dans une transaction à 
-	partir d'une adresse ethereum, cette transaction est représentée en solidity
-	par "msg", "msg.sender" correspond à l'addresse qui émet cette transaction. 
-	La fonction metaCoin modifie le mapping "balances" en associant le nombre 
-	100000 à l'adresse de l'émetteur de la transaction que le contrat lit sur 
-	"msg.sender".
-	Cette fonction est assez naïve car tout le monde peut mettre le solde de son
-	adresse à 10000. Il est tout à fait possible de restreidre l'accès à cette
-	fonction par un "if" ou plus généralement par un "modifier", ces méthodes
-	seront mobilisées dans d'autres contrats */
-	
-	function sendCoin(address receiver, uint amount) returns(bool sufficient) {
-	    /* sendCoin est la fonction de transfert de monnaie. Cette fonction 
-	    peut être appelée par n'importe qui. Elle prend en input l'adresse à 
-	    créditer sous "receiver" qui doit être du type "address" et un montant
-	    sous "amount" qui doit être du type "uint". Selon les cas elle retourne
-	    "sufficient"=vrai si les fonds du solliciteur de la fonction sont 
-	    suffisants et "sufficient"=faux dans le cas contraire. Dans le cas vrai
-	    la fonction exécute le transfert c'est à dire crédite et débite les
-	    adresses correspondantes dans le mapping "balances": */
-	    
-	    if (balances[msg.sender] < amount) return false;
-	    /* la condition "if" vérifie qu'un "amount" suffisant est associé dans
-	    le mapping "balances" à l'adresse qui sollicite la fonction "sendCoin".
-	    Notez que le test est strict, si l'adresse "msg.sender" est associé à un
-	    solde égale à "amount" le retour de la fonction sera faux. Lorsque la 
-	    condition balances[msg.sender] < amount n'est pas vérifié le reste du 
-	    code s'exécute: */
-	    
-		balances[msg.sender] -= amount;
-		// Le mapping "balances" est modifié. L'envoyeur est débité de "amount" 
-		balances[receiver] += amount;
-		// Le mapping "balances" est modifié. Le récepteur est crédité
-		return true;
-		/* La fonction sendCoin retourne "vrai" pour signaler que les fonds 
-		était suffisants et que le transfert a été effectué*/
-	}
-}
-/* Ce contrat une fois déployé sera stocké dans la blockchain, il se termine 
-sans possibilité de l'en retirer. Une bonne pratique est d'ajouter cette option
-avec la fonction "selfdestruct(address)". Chaque opération consomme du gaz sous
-la forme d'Ether, il est donc nécessaire d'optimiser le code pour alléger les
-frais d'utilisation du contrat. La fonction "selfdestruct" est une exception et
-consomme un gaz négatif. En effet, "selfdestruct" supprime le contrat et libère 
-de l'espace sur la blockchain ce qui est encouragé par le protocole ethereum.
-On peut préciser une adresse à "selfdestruct", si le contrat contient des ethers
-ils seront transférés à l'adresse indiquée.
-Le contrat MetaCoin v2 propose une optimisation de ce code.
-*/
+function kill() minterOnly(minter) { 
+  selfdestruct(); }
+       }
+/* Cette dernière fonction permet de "nettoyer" la blockchain en supprimant le 
+contrat. Il est important de la faire figurer pour libérer de l'espace sur 
+la blockchain mais aussi pour supprimer un contrat buggé. En précisant une
+adresse selfdestruct(address), tous les ethers stockés par le contrat y sont
+envoyés. Attention si une transaction envoie des ethers à un contrat qui s'est
+"selfdestruct" ces ethers seront perdus*/
