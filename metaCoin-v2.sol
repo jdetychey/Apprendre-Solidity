@@ -3,7 +3,7 @@
 http://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html
 */
 
-/* EN COURS DE REDACTIOB */
+/* EN COURS DE REDACTION */
 
 contract metaCoinv2 {
     // The keyword "public" makes those variables
