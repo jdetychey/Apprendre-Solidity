@@ -49,9 +49,10 @@ inheritance, etc.) */
 	    /* la condition "if" vérifie qu'un "amount" suffisant est associé dans
 	    le mapping "balances" à l'adresse qui sollicite la fonction "sendCoin".
 	    Notez que le test est strict, si l'adresse "msg.sender" est associé à un
-	    solde égale à "amount" le retour de la fonction sera faux. Lorsque la 
-	    condition balances[msg.sender] < amount n'est pas vérifié le reste du 
-	    code s'exécute: */
+	    solde égale à "amount" le retour de la fonction sera faux. Cela permet de
+	    stopper l'exécution quand une adresse qui n'est pas sur le mapping (donc 0
+	    en solde) solicite la fonction. Lorsque la condition 
+	    balances[msg.sender] < amount n'est pas vérifié le reste du code s'exécute: */
 	    
 		balances[msg.sender] -= amount;
 		// Le mapping "balances" est modifié. L'envoyeur est débité de "amount" 
