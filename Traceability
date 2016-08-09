@@ -1,5 +1,5 @@
 /* Cette solution simple de traçabilité repose sur un contrat principal (Traceability)
-et un contrat supplémentaire par objet à tracer (Tracking).
+et un contrat ad hoc par objet à tracer (Tracking).
 Le contrat principal se comporte comme une liste blanche associant les identifiants
 des objets et les contrats de traçabilité.
 Une version plus avancée intègrera le déploiement du contrat Tracking à l'intérieur
