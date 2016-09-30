@@ -41,11 +41,11 @@ l'accès à certaines fonctions.
 de contrat de traçabilité
 */
 
-    function TrackAdmin() {
+    function Traceabilityv1() {
         Admin = msg.sender;
     }
     
-/* La fonction TrackList est le constructeur du contrat, elle s'exécute à la 
+/* La fonction Traceabilityv1 est le constructeur du contrat, elle s'exécute à la 
 création du contrat et définie par défaut Admin comme étant l'adresse déployant
 le contrat*/
     
@@ -108,7 +108,7 @@ le contrat Traceability*/
 /* Cet event fait la publicité du changement de propriétaire. On peut définir 
 autant d'event qu'il y a d'information à tracer */
 
-    function TrackId() {
+    function Trackingv1() {
         Owner = msg.sender;
         identifier = msg.data;
     }
