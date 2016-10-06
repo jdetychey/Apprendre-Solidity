@@ -24,9 +24,9 @@ inheritance, etc.) */
 	}
 	
 	/* la fonction metaCoin est le constructeur du contrat, elle s'exécute une
-	seule fois au moment de la création du contrat. Cette transaction. La création
-	du contrat est représentée en solidity par "msg", "msg.sender" correspond 
-	à l'addresse qui émet cette transaction. 
+	seule fois au moment de la création du contrat. La création du contrat 
+	est une transaction et comme toute transaction elle est représentée en 
+	solidity par "msg", "msg.sender" correspond  à l'addresse qui émet cette transaction. 
 	La fonction metaCoin modifie le mapping "balances" en associant le nombre 
 	100000 à l'adresse de l'émetteur de la transaction que le contrat lit sur 
 	"msg.sender".
