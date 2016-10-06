@@ -23,17 +23,14 @@ inheritance, etc.) */
 		balances[msg.sender] = 10000;
 	}
 	
-	/* la fonction metaCoin est la fonction de création monétaire. Elle peut 
-	être appelée par n'importe qui, l'appel se fait dans une transaction à 
-	partir d'une adresse ethereum, cette transaction est représentée en solidity
-	par "msg", "msg.sender" correspond à l'addresse qui émet cette transaction. 
+	/* la fonction metaCoin est le constructeur du contrat, elle s'exécute une
+	seule fois au moment de la création du contrat. Cette transaction. La création
+	du contrat est représentée en solidity par "msg", "msg.sender" correspond 
+	à l'addresse qui émet cette transaction. 
 	La fonction metaCoin modifie le mapping "balances" en associant le nombre 
 	100000 à l'adresse de l'émetteur de la transaction que le contrat lit sur 
 	"msg.sender".
-	Cette fonction est assez naïve car tout le monde peut mettre le solde de son
-	adresse à 10000. Il est tout à fait possible de restreidre l'accès à cette
-	fonction par un "if" ou plus généralement par un "modifier", ces méthodes
-	seront mobilisées dans d'autres contrats */
+	 */
 	
 	function sendCoin(address receiver, uint amount) returns(bool sufficient) {
 	    /* sendCoin est la fonction de transfert de monnaie. Cette fonction 
