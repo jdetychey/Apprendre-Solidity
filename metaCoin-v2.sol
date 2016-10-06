@@ -36,12 +36,12 @@ contract metaCoinv2 {
         throw;
     _
 }
-    /* le "modifier" permet de poser des conditions à l'exécution de certaines
+    /* le "modifier" permet de poser des conditions à l'exécution des
     fonctions. Ici, "minterOnly" sera ajouté à la syntaxe des fonctions que l'on
     veut réserver au "minter". Le modifier teste la condion msg.sender != minter
     si le requêteur de la fonction n'est pas le minter alors l'exécution
     s'interrompt, c'est le sens du "throw". S'il s'agit bien du minter alors
-    la fonction s'exécute. Notez le "_" underscore après le teste, il signifie
+    la fonction s'exécute. Notez le "_" underscore après le test, il signifie
     à la fonction de continuer son exécution.*/
      
     function Coin() {
