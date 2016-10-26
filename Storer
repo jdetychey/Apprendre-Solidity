@@ -16,7 +16,7 @@ function storer() {
 /* 'storer' est une fonction un peu particulière, il s'agit du constructeur du contrat.
 Cette fonction s'exécute une seule fois au moment de la création du contrat. 
 La création du contrat est une transaction et comme toute transaction elle est
-représentée en 	solidity par "msg", "msg.sender" correspond  à l'addresse qui 
+représentée en 	solidity par "msg", "msg.sender" correspond  à l'adresse qui 
 émet cette transaction.  
 A la création du contrat la variable owner reçoit l'adresse qui a déployer le
 contrat */
