@@ -8,6 +8,7 @@ http://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html
 - créer des événéments afin que des personnes extérieures puissent suivre
 les modificiations du contrat
 - ajouter un peu de flexibilité*/
+pragma solidity ^0.4.6;
 
 contract metaCoinv2 {
     
@@ -21,7 +22,7 @@ contract metaCoinv2 {
     */
     
     event Sent(address from, address to, uint amount);
-    event Create(address from, address to, uint amount)
+    event Create(address from, address to, uint amount);
     /*On définit les events "Sent" et "Create". L'Event est un type de fonction
      prenant jusqu'à 3 paramêtres en entrée et qui permet un usage pratique du 
      journal de la machine virtuelle d'ethereum. Lorsqu'un event est appelé il
@@ -30,21 +31,21 @@ contract metaCoinv2 {
     contrat depuis l'extérieure 
          */
 
-    modifier minterOnly(address minter)
-{
-    if (msg.sender != minter)
-        throw;
-    _
-}
-    /* le "modifier" permet de poser des conditions à l'exécution des
+
+modifier minterOnly {
+        if (msg.sender != minter)
+            throw;
+        _;
+    }
+    /* le "modifier" permet de poser des conditions à l'exécution de certaines
     fonctions. Ici, "minterOnly" sera ajouté à la syntaxe des fonctions que l'on
     veut réserver au "minter". Le modifier teste la condion msg.sender != minter
     si le requêteur de la fonction n'est pas le minter alors l'exécution
     s'interrompt, c'est le sens du "throw". S'il s'agit bien du minter alors
-    la fonction s'exécute. Notez le "_" underscore après le test, il signifie
+    la fonction s'exécute. Notez le "_" underscore après le teste, il signifie
     à la fonction de continuer son exécution.*/
      
-    function Coin() {
+    function metaCoinv2() {
         minter = msg.sender;
     }
     /* Cette fonction est un "constructor" elle ne reçoit rien en argument et
@@ -52,11 +53,11 @@ contract metaCoinv2 {
     la variable "minter" reçoit l'adresse "msg.sender" c'est à dire l'adresse
     de celui qui a déployé le contrat
     En l'absence de fonction spécifique pour modifier cette variable elle est
-    donc immuable*/
+     immuable*/
 
 
     function changeMinter (address _newMinter)
-       minterOnly(minter)
+       minterOnly
    {
        minter = _newMinter;
    }
@@ -65,7 +66,7 @@ contract metaCoinv2 {
    modifier minterOnly assure que lui seule puisse déléguer.*/
 
   
-    function createCoin(address receiver, uint amount) minterOnly(minter) {
+    function createCoin(address receiver, uint amount) minterOnly {
         balances[receiver] += amount;
         Create(msg.sender, receiver, amount);
     }
@@ -89,8 +90,8 @@ contract metaCoinv2 {
     "Sent" qui indique à tout le monde que msg.sender (ie le minter) a attribué 
     un montant a l'adresse receiver.*/
 
-function kill() minterOnly(minter) { 
-  selfdestruct(); }
+function kill() minterOnly { 
+  selfdestruct(minter); }
        }
 /* Cette dernière fonction permet de "nettoyer" la blockchain en supprimant le 
 contrat. Il est important de la faire figurer pour libérer de l'espace sur 
