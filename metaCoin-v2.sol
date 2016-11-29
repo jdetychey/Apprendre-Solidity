@@ -9,25 +9,33 @@ http://solidity.readthedocs.io/en/latest/introduction-to-smart-contracts.html
 les modificiations du contrat
 - ajouter un peu de flexibilité*/
 pragma solidity ^0.4.6;
+/*'pragma' indique au compileur dans quelle version de Solidity ce code est écrit */
 
 contract metaCoinv2 {
-    
-    address public minter;
+        address public minter;
     /* le droit d'émission de la monnaie revient au "minter", il est identifié
     par son addresse et cette adresse est publique */
     
     mapping (address => uint) public balances;
 
     /* Comme précédemment on définit un mapping avec les adresses et les soldes
-    */
+   Pour rappel, un mapping est un dictionnaire associant les adresses "address"
+    à des soldes "uint". Par défaut les "mapping" sont publics, i.e quiconque
+    peut faire une requête de lecture. Le complément "public" est généralement 
+    ajouté pour lever l'ambuguïté "mapping (address => uint) public balances;"
+    On peut bien sûr préciser "private" à la place pour qu'il soit impossible 
+    de faire des requêtes sur le mapping sauf pour le contrat lui-même
+    Notez que ces données restent néanmoins "visibles" sur la blockchain
+    Avec private on aurait : mapping (address => uint) private balances;
+      */
     
     event Sent(address from, address to, uint amount);
     event Create(address from, address to, uint amount);
     /*On définit les events "Sent" et "Create". L'Event est un type de fonction
      prenant jusqu'à 3 paramêtres en entrée et qui permet un usage pratique du 
-     journal de la machine virtuelle d'ethereum. Lorsqu'un event est appelé il
+     journal de la machine virtuelle d'Ethereum. Lorsqu'un event est appelé il
     entraîne le stockage des arguments qu'il contient dans le journal des 
-    transactions Les events permettent donc de suivre ce qui se passe dans le
+    transactions. Les events permettent donc de suivre ce qui se passe dans le
     contrat depuis l'extérieure 
          */
 
@@ -61,9 +69,9 @@ modifier minterOnly {
    {
        minter = _newMinter;
    }
-   /* Cette fonction répond au problème du changement de Minter, l'ancien peut
-   déléguer sa fonction à l'adresse (donc à la personne) de son choix. Le
-   modifier minterOnly assure que lui seule puisse déléguer.*/
+   /* Cette fonction répond au problème du changement de Minter, l'ancien
+   minter peut déléguer sa fonction à l'adresse (donc à la personne) de son choix.
+   Le modifier minterOnly assure que lui seule puisse appeler cette fonction.*/
 
   
     function createCoin(address receiver, uint amount) minterOnly {
